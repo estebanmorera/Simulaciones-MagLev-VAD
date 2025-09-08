@@ -1,0 +1,251 @@
+Header
+  CHECK KEYWORDS Warn
+  Mesh DB "." "."
+  Include Path ""
+  Results Directory ""
+End
+
+Simulation
+  Max Output Level = 5
+  Coordinate System = Cartesian
+  Coordinate Mapping(3) = 1 2 3
+  Simulation Type = Steady state
+  Steady State Max Iterations = 1
+  Output Intervals(1) = 1
+  Solver Input File = case.sif
+  Post File = case.vtu
+  Output File = case.result
+End
+
+Constants
+  Gravity(4) = 0 -1 0 9.82
+  Stefan Boltzmann = 5.670374419e-08
+  Permittivity of Vacuum = 8.85418781e-12
+  Permeability of Vacuum = 1.25663706e-6
+  Boltzmann Constant = 1.380649e-23
+  Unit Charge = 1.6021766e-19
+End
+
+! ==============================================================
+! DEFINICIÓN DE CUERPOS SEGÚN LA GEOMETRÍA DEL COJINETE
+! ==============================================================
+
+Body 1
+  Target Bodies(1) = 200  ! Air_Domain
+  Name = "Dominio de Aire"
+  Equation = 1
+  Material = 1
+End
+
+Body 2
+  Target Bodies(1) = 10   ! Magnet_Exterior_1
+  Name = "Imán Exterior Inferior"
+  Equation = 1
+  Material = 3            ! Polaridad Positiva (+Z)
+  Body Force = 1          ! Asignar cálculo de fuerzas
+End
+
+Body 3
+  Target Bodies(1) = 11   ! Magnet_Exterior_2
+  Name = "Imán Exterior Superior"
+  Equation = 1
+  Material = 4            ! Polaridad Negativa (-Z)
+  Body Force = 1          ! Asignar cálculo de fuerzas
+End
+
+Body 4
+  Target Bodies(1) = 12   ! Magnet_Interior_1
+  Name = "Imán Interior Inferior"
+  Equation = 1
+  Material = 3            ! Polaridad Positiva (+Z)
+  Body Force = 1          ! Asignar cálculo de fuerzas
+End
+
+Body 5
+  Target Bodies(1) = 13   ! Magnet_Interior_2
+  Name = "Imán Interior Superior"
+  Equation = 1
+  Material = 4            ! Polaridad Negativa (-Z)
+  Body Force = 1          ! Asignar cálculo de fuerzas
+End
+
+! ==============================================================
+! SOLVER MAGNETODINÁMICO
+! ==============================================================
+
+Solver 1
+  Equation = MgDyn
+  Procedure = "MagnetoDynamics" "WhitneyAVSolver"
+  Exec Solver = Always
+  Stabilize = True
+  Optimize Bandwidth = True
+  Steady State Convergence Tolerance = 1.0e-4
+  Nonlinear System Convergence Tolerance = 1.0e-5
+  Nonlinear System Max Iterations = 50
+  Nonlinear System Newton After Iterations = 5
+  Nonlinear System Newton After Tolerance = 1.0e-2
+  Nonlinear System Relaxation Factor = 0.8
+  Linear System Solver = Iterative
+  Linear System Iterative Method = BiCGStab
+  Linear System Max Iterations = 1000
+  Linear System Convergence Tolerance = 1.0e-8
+  BiCGstabl polynomial degree = 2
+  Linear System Preconditioning = ILU1
+  Linear System ILUT Tolerance = 1.0e-2
+  Linear System Abort Not Converged = False
+  Linear System Residual Output = 20
+  Linear System Precondition Recompute = 1
+End
+
+! Solver para calcular fuerzas magnéticas
+Solver 2
+  Equation = "MGDynamicsCalc"
+  Procedure = "MagnetoDynamics" "MagnetoDynamicsCalcFields"
+  Exec Solver = Always
+  Stabilize = True
+  Optimize Bandwidth = True
+  Calculate Magnetic Field Strength = True
+  Calculate Magnetic Flux Density = True
+  Calculate Current Density = True
+  Calculate JxB = True
+  Calculate Nodal Fields = True
+  Calculate Elemental Fields = True
+  Linear System Solver = Iterative
+  Linear System Iterative Method = BiCGStab
+  Linear System Max Iterations = 1000
+  Linear System Convergence Tolerance = 1.0e-8
+  Linear System Preconditioning = ILU0
+End
+
+! Solver para calcular el tensor de Maxwell
+Solver 3
+  Equation = "CalcFields"
+  Procedure = "MagnetoDynamics" "MagnetoDynamicsCalcFields"
+  Exec Solver = Always
+  
+  ! Activar cálculo de tensor de Maxwell
+  Calculate Maxwell Stress = Logical True
+  Calculate Magnetic Force = Logical True
+  
+  ! Configuración del solver lineal
+  Linear System Solver = Iterative
+  Linear System Iterative Method = BiCGStab
+  Linear System Max Iterations = 1000
+  Linear System Convergence Tolerance = 1.0e-8
+  Linear System Preconditioning = ILU0
+End
+
+! Solver para SaveScalars (guardar fuerzas en archivo)
+Solver 4
+  Equation = "SaveScalars"
+  Procedure = "SaveData" "SaveScalars"
+  Exec Solver = Always
+  Filename = "forces_output.dat"
+  
+  ! Especificar qué variables guardar
+  Variable 1 = "Maxwell stress xx"
+  Variable 2 = "Maxwell stress yy"  
+  Variable 3 = "Maxwell stress zz"
+  Variable 4 = "Maxwell stress xy"
+  Variable 5 = "Maxwell stress xz"
+  Variable 6 = "Maxwell stress yz"
+End
+
+! Solver para SaveScalars (guardar fuerzas en archivo)
+Solver 4
+  Equation = "SaveScalars"
+  Procedure = "SaveData" "SaveScalars"
+  Exec Solver = Always
+  Filename = "forces_output.dat"
+  
+  ! Especificar qué variables guardar
+  Variable 1 = "Maxwell stress xx"
+  Variable 2 = "Maxwell stress yy"  
+  Variable 3 = "Maxwell stress zz"
+  Variable 4 = "Maxwell stress xy"
+  Variable 5 = "Maxwell stress xz"
+  Variable 6 = "Maxwell stress yz"
+End
+
+Equation 1
+  Name = "MgDyn"
+  Active Solvers(4) = 1 2 3 4
+End
+
+! ==============================================================
+! DEFINICIÓN DE FUERZAS CORPORALES
+! ==============================================================
+
+Body Force 1
+  Name = "Magnetic Force Calculation"
+End
+
+! ==============================================================
+! DEFINICIÓN DE MATERIALES
+! ==============================================================
+
+Material 1
+  Name = "Air (room temperature)"
+  Relative Permeability = 1.0
+  Magnetization 1 = 0
+  Magnetization 2 = 0
+  Magnetization 3 = 0
+End
+
+Material 2
+  Name = "Metal sin imán"
+  Relative Permeability = 1.05
+  Magnetization 1 = 0
+  Magnetization 2 = 0
+  Magnetization 3 = 0
+End
+
+Material 3
+  Name = "Polaridad Positiva"
+  Relative Permeability = 1.05
+  Magnetization 1 = 0
+  Magnetization 2 = 0
+  Magnetization 3 = 8.0e5    ! ~1 Tesla para NdFeB
+End
+
+Material 4
+  Name = "Polaridad Negativa"
+  Relative Permeability = 1.05
+  Magnetization 1 = 0
+  Magnetization 2 = 0
+  Magnetization 3 = -8.0e5   ! ~1 Tesla para NdFeB
+End
+
+! ==============================================================
+! CONDICIONES DE CONTORNO
+! ==============================================================
+
+! Límites externos del dominio de aire (cilindro)
+Boundary Condition 1
+  Target Boundaries(2) = 40 151  ! Boundaries del cilindro de aire
+  Name = "Límites externos del dominio"
+  AV {e} = 0.0
+  Infinity BC = True
+End
+
+! Superficies externas del cilindro de aire
+Boundary Condition 2
+  Target Boundaries(3) = 17 18 19  ! Superficies del cilindro de aire
+  Name = "Superficies externas del cilindro"
+  AV {e} = 0.0
+  Infinity BC = True
+End
+
+! Interfaces aire-imán (excluyendo las que ya están asignadas)
+Boundary Condition 3
+  Target Boundaries(4) = 26 63 76 101  ! Boundaries de interfaces aire-imán (sin 2 y 7)
+  Name = "Interfaces aire-imán"
+  ! Continuidad automática del campo magnético en interfaces
+End
+
+! Superficies de interfaces aire-imán
+Boundary Condition 4
+  Target Boundaries(16) = 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16  ! Superficies 1-16
+  Name = "Superficies de interfaces aire-imán"
+  ! Continuidad automática en estas superficies
+End
