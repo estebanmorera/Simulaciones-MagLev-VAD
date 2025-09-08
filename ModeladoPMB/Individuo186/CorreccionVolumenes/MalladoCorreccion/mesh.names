@@ -1,0 +1,26 @@
+! ----- names for bodies -----
+$ Air_Domain = 1
+$ Magnet_Exterior_2 = 3
+$ Magnet_Interior_2 = 5
+$ body7 = 7
+$ body8 = 8
+! ----- names for boundaries -----
+$ Magnet_Ext_2_Surfaces = 7
+$ Magnet_Int_1_Surfaces = 8
+$ Magnet_Int_2_Surfaces = 9
+$ Air_Boundary = 10
+$ surf_bc14 = 14
+$ surf_bc15 = 15
+$ surf_bc16 = 16
+$ surf_bc17 = 17
+$ surf_bc21 = 21
+$ surf_bc22 = 22
+$ surf_bc23 = 23
+$ surf_bc24 = 24
+$ surf_bc28 = 28
+$ surf_bc29 = 29
+$ surf_bc30 = 30
+$ surf_bc31 = 31
+$ surf_bc32 = 32
+$ surf_bc33 = 33
+$ surf_bc34 = 34
