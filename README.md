@@ -3,5 +3,5 @@ Repositorio conteniendo las carpetas y archivos de simulación generados para el
 
 [Ver manual en PDF](ArchivosComplementarios/PDFGuia.pdf)
 
-[![Abrir PDF](https://img.shields.io/badge/PDF-Ver_Guia_del_Flujo_de_Optimizacion-green)](ArchivosComplementarios/PDFGuia.pdf)
+[![Abrir PDF](https://img.shields.io/badge/PDF-Ver_Guia_del_Flujo_de_Optimizacion-blue)](ArchivosComplementarios/PDFGuia.pdf)
 
